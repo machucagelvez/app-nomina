@@ -18,7 +18,7 @@ const UserSchema = Schema({
     type: String,
     required: [true, 'Password is required'],
   },
-  identity_card: {
+  cc: {
     type: String,
     required: [true, 'Identity card is required'],
   },

@@ -6,7 +6,7 @@ const {
   addUser,
   deleteUser,
 } = require('../controllers/users')
-const { isValidRole, checkEmail } = require('../helpers/index')
+const { isValidRole, checkEmail, userById } = require('../helpers/index')
 const { fieldValidator } = require('../middlewares/field-validator')
 
 const router = Router()
@@ -25,8 +25,8 @@ router.post(
       'Password is required and must be at least 6 characters long'
     ).isLength({ min: 6 }),
     check(
-      'identity_card',
-      'Identity card is required and must be at least 5 characters long'
+      'cc',
+      'C.C. is required and must be at least 5 characters long'
     ).isLength({ min: 5 }),
     check('role').custom(isValidRole),
     fieldValidator,
@@ -34,7 +34,12 @@ router.post(
   addUser
 )
 
-router.put('/:id', editUser)
+router.put(
+  '/:id',
+  [check('id', 'Invalid ID').isMongoId(), check('id').custom(userById)],
+  fieldValidator,
+  editUser
+)
 
 router.delete('/:id', deleteUser)
 

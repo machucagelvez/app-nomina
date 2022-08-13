@@ -27,17 +27,21 @@ const addUser = async (req, res = response) => {
   user.password = bcryptjs.hashSync(user.password, salt)
 
   await user.save()
-  res.json({
-    user,
-  })
+  res.json(user)
 }
 
-const editUser = (req, res = response) => {
-  const id = req.params.id
-  res.json({
-    msg: 'put API - controlador',
-    id,
-  })
+const editUser = async (req, res = response) => {
+  const { id } = req.params
+  const { _id, password, email, google, role, cc, status, ...updateData } =
+    req.body
+
+  if (password) {
+    const salt = bcryptjs.genSaltSync()
+    updateData.password = bcryptjs.hashSync(password, salt)
+  }
+
+  const user = await User.findByIdAndUpdate(id, updateData, { new: true })
+  res.json(user)
 }
 
 const deleteUser = (req, res = response) => {
