@@ -3,19 +3,17 @@ const bcryptjs = require('bcryptjs')
 
 const User = require('../models/user')
 
-const getUsers = (req = request, res = response) => {
-  const {
-    nombre = 'Indefinido',
-    apellido = 'Indefinido',
-    page = '1',
-    limit,
-  } = req.query
+const getUsers = async (req = request, res = response) => {
+  const { page = 1, limit = 5 } = req.query
+  const offsetIndex = (parseInt(page) - 1) * parseInt(limit)
+  const [total, users] = await Promise.all([
+    User.countDocuments({ status: true }),
+    User.find({ status: true }).limit(parseInt(limit)).skip(offsetIndex),
+  ])
+
   res.json({
-    msg: 'get API - controlador',
-    nombre,
-    apellido,
-    page,
-    limit,
+    total,
+    users,
   })
 }
 
@@ -44,12 +42,13 @@ const editUser = async (req, res = response) => {
   res.json(user)
 }
 
-const deleteUser = (req, res = response) => {
-  const id = req.params.id
-  res.json({
-    msg: 'delete API - controlador',
-    id,
+const deleteUser = async (req, res = response) => {
+  const { id } = req.params
+  const deletedUser = await User.findByIdAndUpdate(id, {
+    status: false,
+    new: true,
   })
+  res.json(deletedUser)
 }
 
 module.exports = {

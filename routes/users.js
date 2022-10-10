@@ -11,7 +11,15 @@ const { fieldValidator } = require('../middlewares/field-validator')
 
 const router = Router()
 
-router.get('/', getUsers)
+router.get(
+  '/',
+  [
+    check('limit', 'limit must be a number').isInt().optional(),
+    check('page', 'page must be a number').isInt().optional(),
+    fieldValidator,
+  ],
+  getUsers
+)
 
 router.post(
   '/',
@@ -28,7 +36,6 @@ router.post(
       'cc',
       'C.C. is required and must be at least 5 characters long'
     ).isLength({ min: 5 }),
-    check('role').custom(isValidRole),
     fieldValidator,
   ],
   addUser
@@ -41,6 +48,11 @@ router.put(
   editUser
 )
 
-router.delete('/:id', deleteUser)
+router.delete(
+  '/:id',
+  [check('id', 'Invalid ID').isMongoId(), check('id').custom(userById)],
+  fieldValidator,
+  deleteUser
+)
 
 module.exports = router
